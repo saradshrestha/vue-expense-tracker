@@ -1,12 +1,10 @@
 <template>
   <Header/>
   <div class="container">
-    <Balance :total="total" />
-    <IncomeExpenses :getIncome="getIncome" :getExpenses="getExpenses"/>
-    <TransactionList :transactions="transactions" />
-    <AddTransaction/>
-
-
+    <Balance :total="+total" />
+    <IncomeExpenses :getIncome="(+getIncome).toFixed(2)" :getExpenses="(+getExpenses).toFixed(2)"/>
+    <TransactionList :transactions="transactions" @transactionDeleted="handleTransactionDeleted"/>
+    <AddTransaction @transactionSubmitted="handleTransactionSumbitted" />
   </div>
 </template>
 
@@ -18,8 +16,11 @@
     import IncomeExpenses from './components/IncomeExpenses.vue';
     import TransactionList from './components/TransactionList.vue';
     import AddTransaction from './components/AddTransaction.vue';
+    import {useToast} from 'vue-toastification';
 
     import { ref,computed } from 'vue';
+
+    const toast = useToast();
 
     const transactions = ref( [
       { id:1, text:'Flower',amount:20  },
@@ -39,7 +40,7 @@
       .filter((transaction) => transaction.amount > 0)
       .reduce((acc,transaction) => {
         return acc + transaction.amount;
-      }, 0).toFixed(2);
+      }, 0);
     });
 
     const getExpenses = computed(() => {
@@ -47,8 +48,31 @@
       .filter((transaction) => transaction.amount < 0)
       .reduce((acc,transaction) => {
         return acc + transaction.amount;
-      }, 0).toFixed(2);
+      }, 0);
     });
+
+    //Add Transaction
+    const handleTransactionSumbitted = (transactionData) =>{
+      console.log(transactionData);
+      transactions.value.push[{
+        id:generateUnqiueId(),
+        text:transactionData.title,
+        amount:transactionData.amount,
+      }]
+
+      toast.success('Transaction added.')
+    }
+
+    const generateUnqiueId = () =>{
+      return Math.floor(Math.random());
+    }
+
+    const handleTransactionDeleted = () => {
+        transactions.value = transactions.value.filter(
+          (transaction) => transaction.id !== id
+        );
+        toast.success('Transaction deleted.')
+    }
 
 
 
